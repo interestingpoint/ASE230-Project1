@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple object API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #005a87;
+        }
+
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+        }
+
+        input,
+        select {
+            padding: 5px;
+            margin: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Simple object Management API - Test Page</h1>
+    <p>Use this page to test the REST API endpoints. Make sure your PHP server is running!
+    <p> Check your localhost matches API_BASE.</p>
+
+    <div class="test-section">
+        <h3>1. Get All Devices</h3>
+        <button onclick="getAllDevices()">GET /iot-devices</button>
+        <pre id="all-objects-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Get Single Device</h3>
+        <input type="number" id="get-object-id" placeholder="object ID" value="1">
+        <button onclick="getDevice()">GET /iot-devices/{id}</button>
+        <pre id="single-object-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h>3. Create New Device</h>
+        <input type="text" id="new-type" placeholder="Type" value="Oxygen Sensor"><br>
+        <input type="text" id="new-description" placeholder="Desc" value="This is an oxygen sensor"><br>
+        <input type="number" id="new-online" placeholder="Status" value="1"><br>
+        <button onclick="createDevice()">POST /iot-devices</button>
+        <pre id="create-object-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h3>4. Update Device</h3>
+        <input type="number" id="update-device-id" placeholder="object ID" value="1"><br>
+        <input type="text" id="update-type" placeholder="New Type" value="Sensor"><br>
+        <input type="text" id="update-description" placeholder="New Description" value="Data Science"><br>
+        <input type="number" id="update-online" placeholder="New Status" value = 1><br>
+        <button onclick="updateDevice()">PUT /iot-devices/update/{id}</button>
+        <pre id="update-object-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h3>5. Delete Device</h3>
+        <input type="number" id="delete-device-id" placeholder="object ID" value="3">
+        <button onclick="deleteDevice()">DELETE /iot-devices/{id}</button>
+        <pre id="delete-object-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h3>6. toggle Device</h3>
+        <input type="number" id="toggle-device-id" placeholder="object ID" value="3">
+        <button onclick="incDevice()">PUT /iot-devices/toggle/{id}</button>
+        <pre id="toggle-object-result"></pre>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:80';
+
+        async function getAllDevices() {
+            try {
+                const response = await fetch(`${API_BASE}/iot-devices`);
+                const data = await response.json();
+                document.getElementById('all-objects-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('all-objects-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function getDevice() {
+            const id = document.getElementById('get-object-id').value;
+            try {
+                const response = await fetch(`${API_BASE}/iot-devices/${id}`);
+                const data = await response.json();
+                document.getElementById('single-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('single-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function createDevice() {
+            const objectData = {
+                name: document.getElementById('new-type').value,
+                age: document.getElementById('new-description').value,
+                major: document.getElementById('new-online').value,
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/iot-devices`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(objectData)
+                });
+                const data = await response.json();
+                document.getElementById('create-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('create-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function updateDevice() {
+            const id = document.getElementById('update-device-id').value;
+            const updateData = {
+                type: document.getElementById('update-type').value,
+                description: document.getElementById('update-description').value,
+                is_online: document.getElementById('update-online').value
+
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/iot-devices/update/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                const data = await response.json();
+                document.getElementById('update-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('update-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function deleteDevice() {
+            const id = document.getElementById('delete-device-id').value;
+            try {
+                const response = await fetch(`${API_BASE}/iot-devices/${id}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                document.getElementById('delete-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('delete-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+        async function incDevice() {
+            const id = document.getElementById('toggle-device-id').value;
+            try {
+                const response = await fetch(`${API_BASE}/iot-devices/toggle/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                const data = await response.json();
+                document.getElementById('toggle-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('toggle-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+
+</html>

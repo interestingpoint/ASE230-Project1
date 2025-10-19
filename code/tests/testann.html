@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--skeleton taken from module1/code/6_RestAPI/api_tests/javascript/index.html-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=Announcement-width, initial-scale=1.0">
+    <title>Simple object API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #005a87;
+        }
+
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+        }
+
+        input,
+        select {
+            padding: 5px;
+            margin: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Simple object API - Test Page</h1>
+
+
+    <div class="test-section">
+        <h3>1. Get All Announcements</h3>
+        <button onclick="getAllAnnouncements()">GET /announcements</button>
+        <pre id="all-objects-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Get Single Announcement</h3>
+        <input announcement="number" id="get-object-id" placeholder="object ID" value="1">
+        <button onclick="getAnnouncement()">GET /announcements/{id}</button>
+        <pre id="single-object-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h>3. Create New Announcement</h>
+        <input announcement="text" id="new-announcement" placeholder="announcement" value="Oxygen Sensor"><br>
+        <input announcement="text" id="new-location" placeholder="Desc" value="near you"><br>
+        <button onclick="createAnnouncement()">POST /announcements</button>
+        <pre id="create-object-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h3>4. Update Announcement</h3>
+        <input announcement="number" id="update-Announcement-id" placeholder="object ID" value="1"><br>
+        <input announcement="text" id="update-announcement" placeholder="New announcement" value="Sensor"><br>
+        <input announcement="text" id="update-location" placeholder="New location" value="Data Science"><br>
+        <button onclick="updateAnnouncement()">PUT /announcements/{id}</button>
+        <pre id="update-object-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h3>5. Delete Announcement</h3>
+        <input announcement="number" id="delete-Announcement-id" placeholder="object ID" value="3">
+        <button onclick="deleteAnnouncement()">DELETE /announcements/{id}</button>
+        <pre id="delete-object-result"></pre>
+    </div>
+
+
+
+    <script>
+        const API_BASE = 'http://localhost:80';
+
+        async function getAllAnnouncements() {
+            try {
+                const response = await fetch(`${API_BASE}/announcements`);
+                const data = await response.json();
+                document.getElementById('all-objects-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('all-objects-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function getAnnouncement() {
+            const id = document.getElementById('get-object-id').value;
+            try {
+                const response = await fetch(`${API_BASE}/announcements/${id}`);
+                const data = await response.json();
+                document.getElementById('single-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('single-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function createAnnouncement() {
+            const objectData = {
+                announcement: document.getElementById('new-announcement').value,
+                location: document.getElementById('new-location').value,
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/announcements`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-announcement': 'application/json',
+                    },
+                    body: JSON.stringify(objectData)
+                });
+                const data = await response.json();
+                document.getElementById('create-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('create-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function updateAnnouncement() {
+            const id = document.getElementById('update-Announcement-id').value;
+            const updateData = {
+                announcement: document.getElementById('update-announcement').value,
+                location: document.getElementById('update-location').value,
+
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/announcements/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-announcement': 'application/json',
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                const data = await response.json();
+                document.getElementById('update-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('update-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function deleteAnnouncement() {
+            const id = document.getElementById('delete-Announcement-id').value;
+            try {
+                const response = await fetch(`${API_BASE}/announcements/${id}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                document.getElementById('delete-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('delete-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+    </script>
+</body>
+
+</html>

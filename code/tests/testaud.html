@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--skeleton taken from module1/code/6_RestAPI/api_tests/javascript/index.html-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=Audio-width, initial-scale=1.0">
+    <title>Simple object API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #005a87;
+        }
+
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+        }
+
+        input,
+        select {
+            padding: 5px;
+            margin: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Simple object Management API - Test Page</h1>
+    <p>Use this page to test the REST API endpoints. Make sure your PHP server is running!
+    <p> Check your localhost matches API_BASE.</p>
+
+    <div class="test-section">
+        <h3>1. Get All Audios</h3>
+        <button onclick="getAllAudios()">GET /audios</button>
+        <pre id="all-objects-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Get Single Audio</h3>
+        <input Audio="number" id="get-object-id" placeholder="object ID" value="1">
+        <button onclick="getAudio()">GET /audios/{id}</button>
+        <pre id="single-object-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h>3. Create New Audio</h>
+        <input Audio="text" id="new-name" placeholder="name" value="Oxygen Sensor"><br>
+        <input Audio="text" id="new-size" placeholder="size" value=1><br>
+        <input Audio="text" id="new-metadata" placeholder="metadata" value="near you"><br>
+        <button onclick="createAudio()">POST /audios</button>
+        <pre id="create-object-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h3>4. Update Audio</h3>
+        <input Audio="number" id="update-audio-id" placeholder="object ID" value="1"><br>
+        <input Audio="text" id="update-name" placeholder="New name" value="Sensor"><br>
+        <input Audio="text" id="update-size" placeholder="New size" value=0><br>
+        <input Audio="text" id="update-metadata" placeholder="New metadata" value="taken on..."><br>
+        <button onclick="updateAudio()">PUT /audios/{id}</button>
+        <pre id="update-object-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h3>5. Delete Audio</h3>
+        <input Audio="number" id="delete-audio-id" placeholder="object ID" value="3">
+        <button onclick="deleteAudio()">DELETE /audios/{id}</button>
+        <pre id="delete-object-result"></pre>
+    </div>
+
+
+
+    <script>
+        const API_BASE = 'http://localhost:80';
+
+        async function getAllAudios() {
+            try {
+                const response = await fetch(`${API_BASE}/audios`);
+                const data = await response.json();
+                document.getElementById('all-objects-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('all-objects-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function getAudio() {
+            const id = document.getElementById('get-object-id').value;
+            try {
+                const response = await fetch(`${API_BASE}/audios/${id}`);
+                const data = await response.json();
+                document.getElementById('single-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('single-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function createAudio() {
+            const objectData = {
+                name: document.getElementById('new-name').value,
+                size: document.getElementById('new-size').value,
+                metadata: document.getElementById('new-metadata').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/audios`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Audio': 'application/json',
+                    },
+                    body: JSON.stringify(objectData)
+                });
+                const data = await response.json();
+                document.getElementById('create-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('create-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function updateAudio() {
+            const id = document.getElementById('update-audio-id').value;
+            const updateData = {
+                name: document.getElementById('update-name').value,
+                size: document.getElementById('update-size').value,
+                metadata: document.getElementById('update-metadata').value
+
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/audios/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Audio': 'application/json',
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                const data = await response.json();
+                document.getElementById('update-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('update-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function deleteAudio() {
+            const id = document.getElementById('delete-audio-id').value;
+            try {
+                const response = await fetch(`${API_BASE}/audios/${id}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                document.getElementById('delete-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('delete-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+    </script>
+</body>
+
+</html>

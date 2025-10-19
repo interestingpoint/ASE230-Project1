@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--skeleton taken from module1/code/6_RestAPI/api_tests/javascript/index.html-->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple object API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #005a87;
+        }
+
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+        }
+
+        input,
+        select {
+            padding: 5px;
+            margin: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Simple object Management API - Test Page</h1>
+    <p>Use this page to test the REST API endpoints. Make sure your PHP server is running!
+    <p> Check your localhost matches API_BASE.</p>
+
+    <div class="test-section">
+        <h3>1. Get All Tickers</h3>
+        <button onclick="getAllTickers()">GET /Tickers</button>
+        <pre id="all-objects-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Get Single Device</h3>
+        <input type="text" id="get-object-id" placeholder="object ID" value="ADF">
+        <button onclick="getTicker()">GET /Tickers/{id}</button>
+        <pre id="single-object-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h>3. Create New Device</h>
+        <input type="text" id="new-symbol" placeholder="symbol" value="ZZZZ"><br>
+        <input type="text" id="new-full_name" placeholder="full name" value="Z company"><br>
+        <input type="number" id="new-market_value" placeholder="value" value="2"><br>
+        <input type="number" id="new-is_up" placeholder="is_up" value="0"><br>
+        <button onclick="createDevice()">POST /Tickers</button>
+        <pre id="create-object-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h3>4. Update Device</h3>
+        <input type="text" id="update-symbol" placeholder="object ID" value="AAPL"><br>
+        <input type="number" id="update-market_value" placeholder="New Description" value="Data Science"><br>
+        <button onclick="updateTicker()">PUT /Tickers/update/{id}</button>
+        <pre id="update-object-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h3>5. Delete Device</h3>
+        <input type="text" id="delete-device-id" placeholder="object ID" value="thu">
+        <button onclick="deleteDevice()">DELETE /Tickers/{id}</button>
+        <pre id="delete-object-result"></pre>
+    </div>
+
+
+
+    <script>
+        const API_BASE = 'http://localhost:80';
+
+        async function getAllTickers() {
+            try {
+                const response = await fetch(`${API_BASE}/stock-tickers`);
+                const data = await response.json();
+                document.getElementById('all-objects-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('all-objects-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function getTicker() {
+            const id = document.getElementById('get-object-id').value;
+            try {
+                const response = await fetch(`${API_BASE}/stock-tickers/${id}`);
+                const data = await response.json();
+                document.getElementById('single-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('single-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function createDevice() {
+            const objectData = {
+                symbol: document.getElementById('new-symbol').value,
+                full_name: document.getElementById('new-full_name').value,
+                market_value: document.getElementById('new-market_value').value,
+                is_up: document.getElementById('new-is_up').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/stock-tickers`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(objectData)
+                });
+                const data = await response.json();
+                document.getElementById('create-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('create-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function updateTicker() {
+            const id = document.getElementById('update-symbol').value;
+            const updateData = {
+                market_value: document.getElementById('update-market_value').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/stock-tickers/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                const data = await response.json();
+                document.getElementById('update-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('update-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function deleteDevice() {
+            const id = document.getElementById('delete-device-id').value;
+            try {
+                const response = await fetch(`${API_BASE}/stock-tickers/${id}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                document.getElementById('delete-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('delete-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--skeleton taken from module1/code/6_RestAPI/api_tests/javascript/index.html-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=candidate-width, initial-scale=1.0">
+    <title>Simple object API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #005a87;
+        }
+
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+        }
+
+        input,
+        select {
+            padding: 5px;
+            margin: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Simple object Management API - Test Page</h1>
+    <p>Use this page to test the REST API endpoints. Make sure your PHP server is running!
+    <p> Check your localhost matches API_BASE.</p>
+
+    <div class="test-section">
+        <h3>1. Get All candidates</h3>
+        <button onclick="getAllcandidates()">GET /candidates</button>
+        <pre id="all-objects-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Get Single candidate</h3>
+        <input candidate="number" id="get-object-id" placeholder="object ID" value="1">
+        <button onclick="getcandidate()">GET /candidates/{id}</button>
+        <pre id="single-object-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h>3. Create New candidate</h>
+        <input candidate="text" id="new-name" placeholder="name" value="Oxygen Sensor"><br>
+        <input candidate="text" id="new-votes" placeholder="votes" value=1><br>
+        <input candidate="text" id="new-position" placeholder="position" value="near you"><br>
+        <button onclick="createcandidate()">POST /candidates</button>
+        <pre id="create-object-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h3>4. Update candidate</h3>
+        <input candidate="number" id="update-candidate-id" placeholder="object ID" value="1"><br>
+        <input candidate="text" id="update-name" placeholder="New name" value="Sensor"><br>
+        <input candidate="text" id="update-votes" placeholder="New votes" value=0><br>
+        <input candidate="text" id="update-position" placeholder="New position" value="taken on..."><br>
+        <button onclick="updatecandidate()">PUT /candidates/{id}</button>
+        <pre id="update-object-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h3>5. Delete candidate</h3>
+        <input candidate="number" id="delete-candidate-id" placeholder="object ID" value="3">
+        <button onclick="deletecandidate()">DELETE /candidates/{id}</button>
+        <pre id="delete-object-result"></pre>
+    </div>
+
+
+
+    <script>
+        const API_BASE = 'http://localhost:80';
+
+        async function getAllcandidates() {
+            try {
+                const response = await fetch(`${API_BASE}/candidates`);
+                const data = await response.json();
+                document.getElementById('all-objects-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('all-objects-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function getcandidate() {
+            const id = document.getElementById('get-object-id').value;
+            try {
+                const response = await fetch(`${API_BASE}/candidates/${id}`);
+                const data = await response.json();
+                document.getElementById('single-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('single-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function createcandidate() {
+            const objectData = {
+                name: document.getElementById('new-name').value,
+                votes: document.getElementById('new-votes').value,
+                position: document.getElementById('new-position').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/candidates`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-candidate': 'application/json',
+                    },
+                    body: JSON.stringify(objectData)
+                });
+                const data = await response.json();
+                document.getElementById('create-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('create-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function updatecandidate() {
+            const id = document.getElementById('update-candidate-id').value;
+            const updateData = {
+                name: document.getElementById('update-name').value,
+                votes: document.getElementById('update-votes').value,
+                position: document.getElementById('update-position').value
+
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/candidates/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-candidate': 'application/json',
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                const data = await response.json();
+                document.getElementById('update-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('update-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function deletecandidate() {
+            const id = document.getElementById('delete-candidate-id').value;
+            try {
+                const response = await fetch(`${API_BASE}/candidates/${id}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                document.getElementById('delete-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('delete-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+    </script>
+</body>
+
+</html>

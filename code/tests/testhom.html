@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--skeleton taken from module1/code/6_RestAPI/api_tests/javascript/index.html and module1/code/7_Security/bearer/client_demo.html-->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=homework-width, initial-scale=1.0">
+    <title>Simple object API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #005a87;
+        }
+
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+        }
+
+        input,
+        select {
+            padding: 5px;
+            margin: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Simple object Management API - Test Page</h1>
+    <p>Use this page to test the REST API endpoints. Make sure your PHP server is running!
+    <p> Check your localhost matches API_BASE.</p>
+    <div class="container"> <!--lecture 7, part 3, page 19-->
+        <h2 class="step">Login to Get Token</h2>
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" value="object" placeholder="Try: object, teacher, admin_user">
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" value="object123" placeholder="Password">
+        </div>
+        <button onclick="login()">Login</button>
+        <div id="loginResponse"></div>
+        <div id="tokenDisplay" class="token-display" style="display: none;">
+            <strong>Your Bearer Token:</strong>
+            <div id="tokenValue"></div>
+        </div>
+    </div>
+    <div class="test-section">
+        <h3>1. Get All homeworks</h3>
+        <button onclick="getAllhomeworks()">GET /homeworks</button>
+        <pre id="all-objects-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Get Single homework</h3>
+        <input homework="number" id="get-object-id" placeholder="object ID" value="1">
+        <button onclick="gethomework()">GET /homeworks/{id}</button>
+        <pre id="single-object-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h>3. Create New homework</h>
+        <input homework="text" id="new-name" placeholder="name" value="HW1"><br>
+        <input homework="text" id="new-questions" placeholder="questions" value=20><br>
+        <input homework="text" id="new-class" placeholder="class" value="CYS285"><br>
+        <button onclick="createhomework()">POST /homeworks</button>
+        <pre id="create-object-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h3>4. Update homework</h3>
+        <input homework="number" id="update-homework-id" placeholder="object ID" value="1"><br>
+        <input homework="text" id="update-name" placeholder="New name" value="HW2"><br>
+        <input homework="text" id="update-questions" placeholder="New questions" value=30><br>
+        <input homework="text" id="update-class" placeholder="New class" value="CIT400"><br>
+        <button onclick="updatehomework()">PUT /homeworks/update/{id}</button>
+        <pre id="update-object-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h3>5. Delete homework</h3>
+        <input homework="number" id="delete-homework-id" placeholder="object ID" value="3">
+        <button onclick="deletehomework()">DELETE /homeworks/{id}</button>
+        <pre id="delete-object-result"></pre>
+    </div>
+
+
+
+    <script>
+        let currentToken = null;
+        async function login() { //lecture 7, part 3, page 20
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const responseDiv = document.getElementById('loginResponse');
+
+            if (!username || !password) {
+                showError(responseDiv, 'Please enter both username and password');
+                return;
+            }
+
+            try {
+                const response = await fetch('../login.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    currentToken = data.token;
+                    showSuccess(responseDiv, 'Login successful!');
+                    
+                    document.getElementById('tokenDisplay').style.display = 'block';
+                    document.getElementById('tokenValue').textContent = currentToken;
+                    
+                } else {
+                    showError(responseDiv, data.error || 'Login failed');
+                }
+            } catch (error) {
+                showError(responseDiv, 'Network error: ' + error.message);
+            }
+        }
+        const API_BASE = 'http://localhost:80';
+
+        async function getAllhomeworks() {
+            try {
+                const response = await fetch(`${API_BASE}/homeworks`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`, //lecture 7, part 3, page 17, goes for all functions
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                document.getElementById('all-objects-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('all-objects-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function gethomework() {
+            const id = document.getElementById('get-object-id').value;
+            try {
+                const response = await fetch(`${API_BASE}/homeworks/${id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                document.getElementById('single-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('single-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function createhomework() {
+            const objectData = {
+                name: document.getElementById('new-name').value,
+                questions: document.getElementById('new-questions').value,
+                class: document.getElementById('new-class').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/homeworks`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-homework': 'application/json',
+                    },
+                    body: JSON.stringify(objectData)
+                });
+                const data = await response.json();
+                document.getElementById('create-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('create-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function updatehomework() {
+            const id = document.getElementById('update-homework-id').value;
+            const updateData = {
+                name: document.getElementById('update-name').value,
+                questions: document.getElementById('update-questions').value,
+                class: document.getElementById('update-class').value
+
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/homeworks/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-homework': 'application/json',
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                const data = await response.json();
+                document.getElementById('update-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('update-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function deletehomework() {
+            const id = document.getElementById('delete-homework-id').value;
+            try {
+                const response = await fetch(`${API_BASE}/homeworks/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`,
+                    }
+                });
+                const data = await response.json();
+                document.getElementById('delete-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('delete-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+        function showError(element, message) {
+            element.innerHTML = `<div class="error">❌ ${message}</div>`;
+        }
+
+        function showSuccess(element, message) {
+            element.innerHTML = `<div class="success">✅ ${message}</div>`;
+        }
+
+        function showResponse(element, response) {
+            element.innerHTML = `<div class="response">${response}</div>`;
+        }
+    </script>
+</body>
+
+</html>

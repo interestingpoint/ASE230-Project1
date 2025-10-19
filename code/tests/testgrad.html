@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--skeleton taken from module1/code/6_RestAPI/api_tests/javascript/index.html-->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=date-width, initial-scale=1.0">
+    <title>Simple object API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #005a87;
+        }
+
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+        }
+
+        input,
+        select {
+            padding: 5px;
+            margin: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Simple object Management API - Test Page</h1>
+    <p>Use this page to test the REST API endpoints. Make sure your PHP server is running!
+    <p> Check your localhost matches API_BASE.</p>
+
+    <div class="test-section">
+        <h3>1. Get All grades</h3>
+        <button onclick="getAllgrades()">GET /grades</button>
+        <pre id="all-objects-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Get Single grade</h3>
+        <input grade="number" id="get-object-id" placeholder="object ID" value="1">
+        <button onclick="getgrade()">GET /grades/{id}</button>
+        <pre id="single-object-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h>3. Create New grade</h>
+        <input type="text" id="new-name" placeholder="name" value="Jommy Jihm"><br>
+        <input type="text" id="new-English" placeholder="English Grade" value="F"><br>
+        <input type="text" id="new-Math" placeholder="Math Grade" value="B"><br>
+        <input type="text" id="new-Social_Studies" placeholder="Social_Studies Grade" value="A"><br>
+        <button onclick="creategrade()">POST /grades</button>
+        <pre id="create-object-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h3>4. Upgrade grade</h3>
+        <input grade="number" id="upgrade-grade-id" placeholder="object ID" value="1"><br>
+        <input grade="text" id="upgrade-name" placeholder="New Name" value="Jill"><br>
+        <input grade="text" id="upgrade-English" placeholder="New English" value="F"><br>
+        <input grade="text" id="upgrade-Math" placeholder="New Math" value="F"><br>
+        <input grade="text" id="upgrade-Social_Studies" placeholder="New Social" value="F"><br>
+        <button onclick="updategrade()">PUT /grades/{id}</button>
+        <pre id="upgrade-object-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h3>5. Delete grade</h3>
+        <input grade="number" id="delete-grade-id" placeholder="object ID" value="3">
+        <button onclick="deletegrade()">DELETE /grades/{id}</button>
+        <pre id="delete-object-result"></pre>
+    </div>
+
+
+
+    <script>
+        const API_BASE = 'http://localhost:80';
+
+        async function getAllgrades() {
+            try {
+                const response = await fetch(`${API_BASE}/grades`);
+                const data = await response.json();
+                document.getElementById('all-objects-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('all-objects-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function getgrade() {
+            const id = document.getElementById('get-object-id').value;
+            try {
+                const response = await fetch(`${API_BASE}/grades/${id}`);
+                const data = await response.json();
+                document.getElementById('single-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('single-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function creategrade() {
+            const objectData = {
+                name: document.getElementById('new-name').value,
+                English: document.getElementById('new-English').value,
+                Math: document.getElementById('new-Math').value,
+                Social_Studies: document.getElementById('new-Social_Studies').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/grades`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-grade': 'application/json',
+                    },
+                    body: JSON.stringify(objectData)
+                });
+                const data = await response.json();
+                document.getElementById('create-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('create-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function updategrade() {
+            const id = document.getElementById('upgrade-grade-id').value;
+            const upgradeData = {
+                name: document.getElementById('upgrade-name').value,
+                English: document.getElementById('upgrade-English').value,
+                Math: document.getElementById('upgrade-Math').value,
+                Social_Studies: document.getElementById('upgrade-Social_Studies').value
+
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/grades/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-grade': 'application/json',
+                    },
+                    body: JSON.stringify(upgradeData)
+                });
+                const data = await response.json();
+                document.getElementById('upgrade-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('upgrade-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function deletegrade() {
+            const id = document.getElementById('delete-grade-id').value;
+            try {
+                const response = await fetch(`${API_BASE}/grades/${id}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                document.getElementById('delete-object-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('delete-object-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+    </script>
+</body>
+
+</html>
